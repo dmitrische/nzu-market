@@ -9,18 +9,27 @@ def gbm_forecast(df, tscale='months', nsteps=60, nsims=100, ymax=300):
     time-series data and a projection based on the assumption that
     the price dynamics follows geometric brownian motion.
     '''
+
+    if not isinstance(df, pd.DataFrame):        
+        print('ERROR: passed df is not a dataframe')
+        return            
+    elif not set(['date','price']).issubset(df.keys()):
+        print('ERROR: passed df missing date or price')
+        return
+    else:
+        pass
     
     date = list(df['date'])
     price = list(df['price'])
 
+    # Process supplied data
     logreturns = [np.log(price[i]/price[i-1]) for i in range(1,len(price))]
-
     ave = sum(logreturns)/len(logreturns)
     var = sum([(r-ave)**2 for r in logreturns])/(len(logreturns)-1)
     drift = ave - 0.5*var
     sd = np.sqrt(var)
 
-    # Analytic projections
+    # Calculate analytic projections
     proj_date = [date[-1]]
     proj_price = [price[-1]]
     proj_price_hi = [price[-1]]
@@ -34,7 +43,7 @@ def gbm_forecast(df, tscale='months', nsteps=60, nsims=100, ymax=300):
         proj_price_hi.append(price[-1]*np.exp(d+v))
         proj_price_lo.append(price[-1]*np.exp(d-v))
     
-    # Stochastic simulations
+    # Run stochastic simulations
     np.random.seed(seed=1)
     projections = []
     for i in range(nsims):
@@ -58,7 +67,6 @@ def gbm_forecast(df, tscale='months', nsteps=60, nsims=100, ymax=300):
     ax.set_xlabel('date')
     ax.set_ylabel('price')
     ax.set_title("Projection from data")
-
     plt.legend()
     
     return fig
