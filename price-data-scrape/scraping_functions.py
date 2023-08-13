@@ -37,3 +37,78 @@ def strings2dates(datestrings):
         dates.append(date)
 
     return dates
+
+
+def parse_headline(headline, print_exceptions = False):
+	
+	"""
+	Function taking a string and returning a real-valued price or None.
+	    
+	INPUTS:
+	------
+
+	headline: a string with headline text
+    
+    OUTPUTS:
+    -------
+    
+    price: a real-valued price extracted from headline
+    """
+
+	words = headline.split()
+	price = None
+    
+	if('MARKET LATEST' in headline):
+		# This condition catches all but one relevant story since 22 Feb 2016.
+		# Note the mistyped price in headline for 28 Jun 2017, which should be blacklisted.
+   
+		# Price is quoted as last word in all but 3 headlines
+		pricestring = words[-1].strip('$.')
+		try:
+			price = float(pricestring)
+		except ValueError:
+			if(print_exceptions):
+				print("EXCEPTION1: '{}' is not a float!".format(pricestring))
+    
+	if( (price is None) and (headline.count('$') == 1) ):
+		# Look for words starting with $ in 3 special cases
+		
+		pricestrings = [word.strip('$.') for word in words if word.startswith('$')]
+        
+		if(len(pricestrings) == 1):
+			try:
+				price = float(pricestrings[0])
+			except ValueError:
+				if(print_exceptions):
+					print("EXCEPTION2: '{}' is not a float!".format(pricestrings[0]))
+    
+
+	# Could tack on more if blocks to catch more special cases
+
+	return price
+
+
+def parse_summary(summary, print_exceptions = False):
+	
+	"""
+	Function taking a string and returning a real-valued price or None.
+	
+	
+	"""
+	
+	words = summary.split()
+	price = None
+	
+	pricestrings = [ word.strip('$.').removeprefix('NZD').removeprefix('NZ') 
+					 for word in words if 
+					 (word.startswith('$') or (word.startswith('NZD') and len(word) > 3)) ]
+
+	if(len(pricestrings) > 0):
+		try:
+			#print(pricestrings[0])
+			price = float(pricestrings[0])
+		except ValueError:
+			if(print_exceptions):
+				print("EXCEPTION3: '{}' is not a float!".format(pricestrings[0]))
+	
+	return price
