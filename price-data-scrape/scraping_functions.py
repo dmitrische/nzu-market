@@ -99,9 +99,17 @@ def parse_summary(summary, print_exceptions = False):
 	words = summary.split()
 	price = None
 	
-	pricestrings = [ word.strip('$.').removeprefix('NZD').removeprefix('NZ') 
-					 for word in words if 
-					 (word.startswith('$') or (word.startswith('NZD') and len(word) > 3)) ]
+	pricestrings = []
+	for i in range(1,len(words)):
+		word = words[i]
+		if(word.startswith('$')):
+			pricestrings.append(word.strip('$.,').strip('s').removeprefix('NZ'))
+		elif(word.startswith('NZD') and len(word) > 3):
+			pricestrings.append(word.strip('.,').removeprefix('NZD'))
+		elif(word.replace(".", "").replace(",", "").isnumeric() and words[i-1] == 'NZD'):
+			pricestrings.append(word.strip('.,'))
+		else:
+			pass
 
 	if(len(pricestrings) > 0):
 		try:
