@@ -32,8 +32,7 @@ date,price,url
 2011-08-26,16.0,https://www.carbonnews.co.nz/story.asp?storyID=5582
 2011-09-02,15.0,https://www.carbonnews.co.nz/story.asp?storyID=5594
 2011-12-02,11.0,https://www.carbonnews.co.nz/story.asp?storyID=5784
-2011-12-16,1.0,https://www.carbonnews.co.nz/story.asp?storyID=5806
-2012-05-18,1.0,https://www.carbonnews.co.nz/story.asp?storyID=6080
+2011-12-09,9.0,https://www.carbonnews.co.nz/story.asp?storyID=5798
 2013-02-15,2.0,https://www.carbonnews.co.nz/story.asp?storyID=6624
 2013-05-24,2.0,https://www.carbonnews.co.nz/story.asp?storyID=6811
 2013-06-28,2.5,https://www.carbonnews.co.nz/story.asp?storyID=6971
@@ -2120,12 +2119,12 @@ date,price,url
 2023-07-13,39.25,https://www.carbonnews.co.nz/story.asp?storyID=28189
 2023-07-17,45.0,https://www.carbonnews.co.nz/story.asp?storyID=28202
 2023-07-18,49.95,https://www.carbonnews.co.nz/story.asp?storyID=28211
+2023-07-19,50.0,https://www.carbonnews.co.nz/story.asp?storyID=28225
 2023-07-20,49.75,https://www.carbonnews.co.nz/story.asp?storyID=28237
 2023-07-21,48.0,https://www.carbonnews.co.nz/story.asp?storyID=28252
 2023-07-24,47.25,https://www.carbonnews.co.nz/story.asp?storyID=28263
 2023-07-25,50.0,https://www.carbonnews.co.nz/story.asp?storyID=28274
 2023-07-26,65.0,https://www.carbonnews.co.nz/story.asp?storyID=28285
-2023-07-27,65.25,https://www.carbonnews.co.nz/story.asp?storyID=28298
 2023-07-28,61.5,https://www.carbonnews.co.nz/story.asp?storyID=28310
 2023-07-31,60.0,https://www.carbonnews.co.nz/story.asp?storyID=28323
 2023-08-01,59.75,https://www.carbonnews.co.nz/story.asp?storyID=28334
@@ -2139,3 +2138,8 @@ date,price,url
 2023-08-11,59.95,https://www.carbonnews.co.nz/story.asp?storyID=28432
 2023-08-14,60.2,https://www.carbonnews.co.nz/story.asp?storyID=28444
 2023-08-15,60.5,https://www.carbonnews.co.nz/story.asp?storyID=28455
+2023-08-16,61.25,https://www.carbonnews.co.nz/story.asp?storyID=28468
+2023-08-17,61.4,https://www.carbonnews.co.nz/story.asp?storyID=28480
+2023-08-18,62.5,https://www.carbonnews.co.nz/story.asp?storyID=28490
+2023-08-21,65.0,https://www.carbonnews.co.nz/story.asp?storyID=28502
+2023-08-22,65.5,https://www.carbonnews.co.nz/story.asp?storyID=28514
