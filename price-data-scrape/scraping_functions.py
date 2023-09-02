@@ -1,3 +1,8 @@
+import pandas as pd
+import datetime as datetime, timedelta
+import requests
+from bs4 import BeautifulSoup as bs
+
 def strings2dates(datestrings):
 	
 	"""
@@ -12,11 +17,8 @@ def strings2dates(datestrings):
                     i) "Today %I:%M%p" for stories published today,
                    ii) Just the weekday in "%A" format, e.g. "Tuesday", 
                        for stories published in the last week.
-                  iii) Full date in "%d %b %Y" format for older stories.
+                  iii) Full date in "%d %b %y" format for older stories.
     """
-
-	from datetime import datetime
-	from datetime import timedelta
 	
 	# Prepare dictionary mapping last 7 weekdays to dates    
 	today = datetime.today().date()
@@ -91,6 +93,19 @@ def parse_summary(summary, print_exceptions = False):
 	
 	"""
 	Function taking a string and returning a real-valued price or None.	
+	
+    INPUTS:
+    ------
+
+    summary: a string with summary text
+    
+    print_exceptions: a boolean switch for all print statements
+    
+    OUTPUTS:
+    -------
+    
+    price: a real-valued price extracted from headline
+
 	"""
 	
 	words = summary.split()
@@ -122,3 +137,71 @@ def parse_summary(summary, print_exceptions = False):
 				print("EXCEPTION3: '{}' is not a float!".format(pricestrings[0]))
 	
 	return price
+
+def update_data(filename):
+
+	"""
+	Function updating an existing file with time-series data on NZU price.
+	
+	INPUTS:
+	------
+	
+	filename: a string specifying the file name
+	
+	OUTPUTS:
+	-------
+	
+	outcome: a string summarising the outcome
+	"""
+	
+	# First load the file into a dataframe
+	df0 = pd.read_csv(filename, index_col='date', parse_dates=[0])
+	
+	# Scrape the Jarden NZ Market Report from Carbon News website
+	url="https://www.carbonnews.co.nz/"
+	page = requests.get(url+"tag.asp?tag=Jarden+NZ+Market+Report")
+	soup = bs(page.content, "html.parser")
+	
+	# Find all the h1, h2, and h3 headlines in the soup
+	helements = soup.find_all(["h1","h2","h3"], class_="Headline")
+	
+	# Find all the accompanying summaries 
+	pelements = soup.find_all("p", class_=None ) # h1 headline
+	pelements+= soup.find_all("p", class_=["StoryIntro","StoryIntro_small"]) # h2 and h3 headlines
+	
+	# Extract headlines, datestrings, and hyperlinks
+	headlines = []; datestrings = []; hrefs = []
+	for i in range(len(helements)):
+		body = helements[i].find("a")
+		headlines.append(body.text.strip())
+		hrefs.append(body.get("href"))
+		# The date string is the first text before the ' - ' in the summary.
+		datestrings.append(pelements[i].text.strip().split(' - ')[0])
+	
+	# Convert datestrings to date objects
+	dates = strings2dates(datestrings)
+	
+	# Extract price values from headlines
+	prices = [parse_headline(headlines[i]) for i in range(len(headlines))]
+	
+	# Generate urls for source stories
+	urls = [url+hrefs[i] for i in range(len(hrefs))]
+	
+	# Create dataframe for stories reporting on NZU price updates
+	date0 = df0.index[-1].date()
+	data = {'date':[], 'price':[], 'url':[]}
+	icount = 0
+	for i in range(1,1+len(dates)):
+		if(dates[-i] > date0 and prices[-i] is not None):
+			data['date'].append(dates[-i])
+			data['price'].append(prices[-i])
+			data['url'].append(url+hrefs[-i])
+			icount += 1
+	df1 = pd.DataFrame(data)
+	
+	# append data frame to CSV file
+	df1.to_csv(filename, mode='a', index=False, header=False)
+	
+	outcome = 'Appended '+str(icount)+' rows.'
+	
+	return outcome
