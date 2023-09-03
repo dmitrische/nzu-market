@@ -1,7 +1,7 @@
 import pandas as pd
-import datetime as datetime, timedelta
 import requests
 from bs4 import BeautifulSoup as bs
+from datetime import datetime
 
 def strings2dates(datestrings):
 	
@@ -19,6 +19,8 @@ def strings2dates(datestrings):
                        for stories published in the last week.
                   iii) Full date in "%d %b %y" format for older stories.
     """
+	
+	from datetime import timedelta
 	
 	# Prepare dictionary mapping last 7 weekdays to dates    
 	today = datetime.today().date()
