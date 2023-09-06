@@ -2,18 +2,18 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-def gbm_forecast(df, tscale='months', nsteps=60, nsims=100, ymax=300):
+def gbm_forecast(df, tscale='months', nsteps=60, nsims=100, ymax=300,
+                 date0 = '1700-01-01', date1 = '2200-01-01'):
 
     '''
     Function returning a matplotlib figure, plotting the supplied 
     time-series data and a projection based on the assumption that
-    the price dynamics follows geometric brownian motion.
+    the price dynamics follows geometric brownian motion (GBM).
 
     INPUTS:
     ------
     
-    df - Pandas dataframe with 'price' column and either indexed
-         by datetime or with a 'date' column.
+    df - Pandas dataframe with a 'price' column and indexed by datetime.
     
     tscale - string specifying the forecasting time-step: 
              'days', 'weeks', 'months', or 'years'.
@@ -24,7 +24,16 @@ def gbm_forecast(df, tscale='months', nsteps=60, nsims=100, ymax=300):
     nsims - integer specifying the number of feasible trajectories 
             to be simulated using MC and then plotted.
     
-    ymax - sets the figure's maximum y-value. 
+    ymax - positive number setting the figure's maximum y-value.
+    
+    date0 - string specifying the *lower* bound of the time-window
+            used to train the GBM model. The string is parsed using
+            the pandas.to_datetime() function.
+    
+    date1 - string specifying the *upper* bound of the time-window
+            used to train the GBM model. 
+    
+    NOTE: date0 and date1 are parsed using pandas.to_datetime()
 
     OUTPUT:
     ------
@@ -35,21 +44,18 @@ def gbm_forecast(df, tscale='months', nsteps=60, nsims=100, ymax=300):
     if not isinstance(df, pd.DataFrame):        
         print('ERROR: passed df is not a dataframe')
         return
+    elif not isinstance(df.index, pd.DatetimeIndex):
+        print('ERROR: passed df is not indexed by datetime')
+        return
     elif not set(['price']).issubset(df.keys()):
         print('ERROR: passed df missing price column')
         return
     else:
-        price = list(df['price'])
+        df1 = df[ (df.index >= pd.to_datetime(date0)) & (df.index <= pd.to_datetime(date1))]
+        price = list(df1['price'])
+        date = list(df1.index)
 
-    if isinstance(df.index, pd.DatetimeIndex):
-        date = list(df.index)
-    elif set(['date']).issubset(df.keys()):
-        date = list(df['date'])
-    else:
-        print('ERROR: passed df is neither indexed by datetime nor has date column')
-        return
-
-    # Process supplied data
+    # Process supplied data    
     logreturns = [np.log(price[i]/price[i-1]) for i in range(1,len(price))]
     ave = sum(logreturns)/len(logreturns)
     var = sum([(r-ave)**2 for r in logreturns])/(len(logreturns)-1)
@@ -89,7 +95,6 @@ def gbm_forecast(df, tscale='months', nsteps=60, nsims=100, ymax=300):
 
     # Plot data and projections    
     fig, ax = plt.subplots(figsize=(8,6))
-    ax.plot(date, price, linestyle='-', marker='.', label='datapoints')
     for i in range(nsims):
         ax.plot(proj_date, projections[i], 'C1', alpha=0.2)
     ax.plot(proj_date, proj_price, 'C0', label='drift')
@@ -97,8 +102,11 @@ def gbm_forecast(df, tscale='months', nsteps=60, nsims=100, ymax=300):
     ax.plot(proj_date, proj_price_hi, 'C0--')
     ax.plot(proj_date, proj_price_lo2, 'C0:', label='drift$~\pm~2\sigma$')
     ax.plot(proj_date, proj_price_hi2, 'C0:')
+    ax.plot(list(df.index), list(df['price']), 'C0-', marker='.', alpha=0.3,
+        label='historical data')
+    ax.plot(date, price, 'C0', marker='.', linestyle='', label='training subset')
     ax.set_ylim(0, ymax)
-    ax.set_xlim(date[0],proj_date[-1])
+    ax.set_xlim(df.index[0],proj_date[-1])
     ax.set_xlabel('date')
     ax.set_ylabel('price')
     ax.set_title('Projection from data\n time-steps: '+tscale)
