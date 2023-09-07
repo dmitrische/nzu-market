@@ -27,8 +27,7 @@ def gbm_forecast(df, tscale='months', nsteps=60, nsims=100, ymax=300,
     ymax - positive number setting the figure's maximum y-value.
     
     date0 - string specifying the *lower* bound of the time-window
-            used to train the GBM model. The string is parsed using
-            the pandas.to_datetime() function.
+            used to train the GBM model. 
     
     date1 - string specifying the *upper* bound of the time-window
             used to train the GBM model. 
@@ -43,6 +42,7 @@ def gbm_forecast(df, tscale='months', nsteps=60, nsims=100, ymax=300,
 
     if not isinstance(df, pd.DataFrame):        
         print('ERROR: passed df is not a dataframe')
+        print('type(df)= ', type(df))
         return
     elif not isinstance(df.index, pd.DatetimeIndex):
         print('ERROR: passed df is not indexed by datetime')
@@ -97,16 +97,18 @@ def gbm_forecast(df, tscale='months', nsteps=60, nsims=100, ymax=300,
     fig, ax = plt.subplots(figsize=(8,6))
     for i in range(nsims):
         ax.plot(proj_date, projections[i], 'C1', alpha=0.2)
+    ax.lines[-1].set_label(str(nsims)+' simulations')        
     ax.plot(proj_date, proj_price, 'C0', label='drift')
     ax.plot(proj_date, proj_price_lo, 'C0--', label='drift$~\pm~\sigma$')
     ax.plot(proj_date, proj_price_hi, 'C0--')
     ax.plot(proj_date, proj_price_lo2, 'C0:', label='drift$~\pm~2\sigma$')
     ax.plot(proj_date, proj_price_hi2, 'C0:')
-    ax.plot(list(df.index), list(df['price']), 'C0-', marker='.', alpha=0.3,
+    ax.plot(list(df.index), list(df['price']), 'C0-', alpha=0.3,
         label='historical data')
     ax.plot(date, price, 'C0', marker='.', linestyle='', label='training subset')
+
     ax.set_ylim(0, ymax)
-    ax.set_xlim(df.index[0],proj_date[-1])
+    ax.set_xlim(df.index[0],df.index[-1]+pd.offsets.DateOffset(**{tscale:nsteps}))
     ax.set_xlabel('date')
     ax.set_ylabel('price')
     ax.set_title('Projection from data\n time-steps: '+tscale)
