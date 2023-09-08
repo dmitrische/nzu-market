@@ -3,7 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 def gbm_forecast(df, tscale='months', nsteps=60, nsims=100, ymax=300,
-                 date0 = '1700-01-01', date1 = '2200-01-01'):
+                 date_range = None):
 
     '''
     Function returning a matplotlib figure, plotting the supplied 
@@ -26,14 +26,10 @@ def gbm_forecast(df, tscale='months', nsteps=60, nsims=100, ymax=300,
     
     ymax - positive number setting the figure's maximum y-value.
     
-    date0 - string specifying the *lower* bound of the time-window
-            used to train the GBM model. 
+    date_range - 2-tuple of pandas timestamps bracketing a range of
+                 datetime indices, selecting a subset of values to train 
+                 the GBM model. By default, use the entire dataframe.
     
-    date1 - string specifying the *upper* bound of the time-window
-            used to train the GBM model. 
-    
-    NOTE: date0 and date1 are parsed using pandas.to_datetime()
-
     OUTPUT:
     ------
 
@@ -51,9 +47,24 @@ def gbm_forecast(df, tscale='months', nsteps=60, nsims=100, ymax=300,
         print('ERROR: passed df missing price column')
         return
     else:
-        df1 = df[ (df.index >= pd.to_datetime(date0)) & (df.index <= pd.to_datetime(date1))]
-        price = list(df1['price'])
-        date = list(df1.index)
+        pass
+
+    if date_range is None:
+        date0, date1 = df.index[0], df.index[-1]
+    else:
+        date0, date1 = date_range
+        if not isinstance(date0, pd.Timestamp):
+            print('ERROR: passed date0 is not pd.Timestamp')
+            return
+        elif not isinstance(date1, pd.Timestamp):
+            print('ERROR: passed date1 is not pd.Timestamp')
+            return
+        else:
+            pass
+
+    df1 = df[ (df.index >= date0) & (df.index <= date1) ]
+    price = list(df1['price'])
+    date = list(df1.index)
 
     # Process supplied data    
     logreturns = [np.log(price[i]/price[i-1]) for i in range(1,len(price))]
@@ -112,6 +123,6 @@ def gbm_forecast(df, tscale='months', nsteps=60, nsims=100, ymax=300,
     ax.set_xlabel('date')
     ax.set_ylabel('price')
     ax.set_title('Projection from data\n time-steps: '+tscale)
-    plt.legend()
+    ax.legend(loc = 'upper left')
     
     return fig
