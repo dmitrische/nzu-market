@@ -3,7 +3,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 def gbm_forecast(df, tscale='months', nsteps=60, nsims=100, ymax=300,
-                 date_range = None):
+                 rand_seed = 1, date_range = None, style = None,
+                 show_title = True, currency=None):
 
     '''
     Function returning a matplotlib figure, plotting the supplied 
@@ -62,6 +63,9 @@ def gbm_forecast(df, tscale='months', nsteps=60, nsims=100, ymax=300,
         else:
             pass
 
+    if style is not None and style in plt.style.available:
+        plt.style.use(style)
+    
     df1 = df[ (df.index >= date0) & (df.index <= date1) ]
     price = list(df1['price'])
     date = list(df1.index)
@@ -94,7 +98,7 @@ def gbm_forecast(df, tscale='months', nsteps=60, nsims=100, ymax=300,
         proj_price_lo2.append(price[-1]*np.exp(d-v2))
     
     # Run stochastic simulations
-    np.random.seed(seed=1)
+    np.random.seed(rand_seed)
     projections = []
     for i in range(nsims):
         projection = [price[-1]]
@@ -108,12 +112,16 @@ def gbm_forecast(df, tscale='months', nsteps=60, nsims=100, ymax=300,
     fig, ax = plt.subplots(figsize=(8,6))
     for i in range(nsims):
         ax.plot(proj_date, projections[i], 'C1', alpha=0.2)
-    ax.lines[-1].set_label(str(nsims)+' simulations')        
-    ax.plot(proj_date, proj_price, 'C0', label='drift')
-    ax.plot(proj_date, proj_price_lo, 'C0--', label='drift$~\pm~\sigma$')
-    ax.plot(proj_date, proj_price_hi, 'C0--')
-    ax.plot(proj_date, proj_price_lo2, 'C0:', label='drift$~\pm~2\sigma$')
-    ax.plot(proj_date, proj_price_hi2, 'C0:')
+    if(nsims == 1):
+        substring = ' simulation'
+    else:
+        substring = ' simulations'
+    ax.lines[-1].set_label(str(nsims)+substring)
+    ax.plot(proj_date, proj_price, 'C5', label='drift')
+    ax.plot(proj_date, proj_price_lo, 'C5--', label='drift$~\pm~\sigma$')
+    ax.plot(proj_date, proj_price_hi, 'C5--')
+    ax.plot(proj_date, proj_price_lo2, 'C5:', label='drift$~\pm~2\sigma$')
+    ax.plot(proj_date, proj_price_hi2, 'C5:')
     ax.plot(list(df.index), list(df['price']), 'C0-', alpha=0.3,
         label='historical data')
     ax.plot(date, price, 'C0', marker='.', linestyle='', label='training subset')
@@ -121,8 +129,14 @@ def gbm_forecast(df, tscale='months', nsteps=60, nsims=100, ymax=300,
     ax.set_ylim(0, ymax)
     ax.set_xlim(df.index[0],df.index[-1]+pd.offsets.DateOffset(**{tscale:nsteps}))
     ax.set_xlabel('date')
-    ax.set_ylabel('price')
-    ax.set_title('Projection from data\n time-steps: '+tscale)
+
+    ylabel = 'price'
+    if(currency is not None):
+        ylabel += ' in ' + str(currency)        
+    ax.set_ylabel(ylabel)
+    
+    if(show_title):
+        ax.set_title('Projection from data\n time-steps: '+tscale)
     ax.legend(loc = 'upper left')
     
     return fig
