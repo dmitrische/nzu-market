@@ -10,9 +10,9 @@ def read_markdown_file(markdown_file):
 st.markdown("<h1 style='text-align: left; color: black;'>Carbon price forecasting</h1>", unsafe_allow_html=True)
 st.write("")
 
-summary = read_markdown_file('summary.md')
-st.markdown(summary)
-st.write("")
+mdtext = read_markdown_file('summary.md')
+st.markdown(mdtext)
+#st.write("")
 
 start_date = pd.to_datetime('2013-9-12')
 
@@ -81,17 +81,6 @@ fig = gbm_forecast(df = df,
 
 st.pyplot(fig)
 
-st.markdown("<h3 style='text-align: left; color: black;'>Forecast interpretation</h3>", unsafe_allow_html=True)
-st.write("")
-interp = read_markdown_file('interpretation.md')
-st.markdown(interp)
 
-st.markdown("<h3 style='text-align: left; color: black;'>Modelling details</h3>", unsafe_allow_html=True)
-st.write("")
-methods = read_markdown_file('modelling.md')
-st.markdown(methods)
-
-st.markdown("<h3 style='text-align: left; color: black;'>Data sources</h3>", unsafe_allow_html=True)
-st.write("")
-sources = read_markdown_file('data_sources.md')
-st.markdown(sources)
+mdtext = read_markdown_file('main_text.md')
+st.markdown(mdtext)

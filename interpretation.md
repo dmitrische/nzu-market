@@ -1,5 +1,0 @@
-In the above figure, each simulation should be interpreted as an equally probable future scenario, and together they illustrate a degree of uncertainty about how the price dynamics could pan out over the next 5 years. However, from the underlying GBM model we know the ensemble average and variance of all these possible trajectories, and we can extrapolate the net drift into the future. 
-
-At any point in the future, the probability that a randomly selected trajectory will be below/above the drift line in that instance is 0.5 (i.e. 50%). 
-
-The figure also shows envelopes defined by one standard deviation (&sigma;) and two standard deviations (2&sigma;) about the drift line. From our model construction, it follows that the probability of simulated prices falling inside these envelopes is 0.682 and 0.954, respectively. The probability of simulated prices venturing outside the outer envelope is 0.046, and (due to symmetry of the normal distribution) the likelihood of falling below the lower branch of the outer envelope is 0.023.
